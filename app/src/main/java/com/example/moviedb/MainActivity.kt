@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.example.moviedb.ui.MovieDescriptionScreen
 import com.example.moviedb.ui.MovieListScreen
+import com.example.moviedb.ui.MovieReviewScreen
 import com.example.moviedb.ui.theme.MovieDBTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,9 +19,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MovieDBTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { /*innerPadding ->
-                    MovieListScreen(modifier = Modifier.padding(innerPadding)*/
-                    innerPadding -> MovieDescriptionScreen(movieId = 1,modifier=Modifier.padding(innerPadding))
+                Scaffold(modifier = Modifier.fillMaxSize()) {
+                    //innerPadding -> MovieListScreen(modifier = Modifier.padding(innerPadding))
+                    //innerPadding -> MovieDescriptionScreen(movieId = 1,modifier=Modifier.padding(innerPadding))
+                    innerPadding -> MovieReviewScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }

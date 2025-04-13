@@ -40,7 +40,7 @@ import com.example.moviedb.utils.Constants
 fun MovieDescriptionScreen(
     movieId: Long,
     viewModel: MovieDescriptionViewModel = viewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val movie by viewModel.movieDescription.collectAsState()
 
@@ -103,14 +103,21 @@ fun MovieDescriptionScreen(
 
             item {
                 it.imdbId?.let { imdbId ->
-                    val imdbUrl = "https://www.imdb.com/title/$imdbId"
                     val context = LocalContext.current
                     Text(
                         text = "Open on IMDB",
                         color = Color.Blue,
                         modifier = Modifier.clickable {
-                            val intent = Intent(Intent.ACTION_VIEW, imdbUrl.toUri())
-                            context.startActivity(intent)
+                            val imdbIntent = Intent(Intent.ACTION_VIEW).apply {
+                                data = Uri.parse("https://www.imdb.com/title/$imdbId")
+                                setPackage("com.imdb.mobile") // force the intent to use IMDb app
+                            }
+                            val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.imdb.com/title/$imdbId"))
+                            if (imdbIntent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(imdbIntent)
+                            } else {
+                                context.startActivity(fallbackIntent)
+                            }
                         }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -123,7 +130,7 @@ fun MovieDescriptionScreen(
 @Composable
 fun MovieDescriptionContent(
     movie: MovieDescription,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         Text(text = movie.title, style = MaterialTheme.typography.headlineMedium)
