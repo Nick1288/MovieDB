@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MovieDB</string>
+    <string name="movie_description">MovieDescription</string>
+    <string name="back_button">back</string>
 </resources>

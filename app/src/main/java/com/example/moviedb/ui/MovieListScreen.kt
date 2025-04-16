@@ -17,16 +17,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.LayoutDirection
-import com.example.moviedb.viewmodel.MovieCategory
+import com.example.moviedb.model.MovieCategory
+import androidx.compose.material3.Card
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieListScreen(
-    viewModel: MovieListViewModel = viewModel(),
+    movieList:List<Movie>,
+    onMovieListItemClicked:(Movie)->Unit,
+    selectedCategory: MovieCategory,
+    onCategoryChanged:(MovieCategory)->Unit,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.movieList.collectAsState()
-    val selectedTab = uiState.currentCategory
 
     Scaffold(
         topBar = {
@@ -35,14 +37,15 @@ fun MovieListScreen(
                     title = { Text("MovieDB") }
                 )
                 MovieTabs(
-                    selectedTab = uiState.currentCategory,
-                    onTabSelected = viewModel::loadMovies
+                    selectedTab = selectedCategory,
+                    onTabSelected = onCategoryChanged
                 )
             }
         }
     ) { innerPadding ->
         MovieList(
-            movieList = uiState.movies,
+            movieList = movieList,
+            onMovieListItemClicked=onMovieListItemClicked,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -73,17 +76,18 @@ fun MovieCategory.displayName(): String = when (this) {
 }
 
 @Composable
-fun MovieList(movieList: List<Movie>, modifier: Modifier = Modifier) {
+fun MovieList(movieList: List<Movie>, onMovieListItemClicked: (Movie) -> Unit, modifier: Modifier = Modifier) {
     LazyColumn(modifier = modifier) {
         items(movieList) { movie ->
-            MovieListItemCard(movie = movie, modifier = Modifier.padding(8.dp))
+            MovieListItemCard(movie = movie, onMovieListItemClicked=onMovieListItemClicked, modifier = Modifier.padding(8.dp))
         }
     }
 }
 
 @Composable
-fun MovieListItemCard(movie: Movie, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
+fun MovieListItemCard(movie: Movie, onMovieListItemClicked: (Movie) -> kotlin.Unit, modifier: Modifier = Modifier) {
+    Card(modifier = modifier,
+        onClick= {onMovieListItemClicked(movie)}) {
         Row {
             Box {
                 AsyncImage(
@@ -117,22 +121,5 @@ fun MovieListItemCard(movie: Movie, modifier: Modifier = Modifier) {
                 Spacer(modifier = Modifier.size(8.dp))
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MovieDBPreview() {
-    MovieDBTheme {
-        MovieListItemCard(
-            movie = Movie(
-                2,
-                "Captain America: Brave New World",
-                "/pzIddUEMWhWzfvLI3TwxUG2wGoi.jpg",
-                "/gsQJOfeW45KLiQeEIsom94QPQwb.jpg",
-                "2025-02-12",
-                "When a group of radical activists take over an energy company's annual gala, seizing 300 hostages, an ex-soldier turned window cleaner suspended 50 storeys up on the outside of the building must save those trapped inside, including her younger brother."
-            )
-        )
     }
 }
