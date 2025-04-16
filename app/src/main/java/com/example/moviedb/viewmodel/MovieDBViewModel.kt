@@ -2,8 +2,10 @@ package com.example.moviedb.viewmodel
 import androidx.lifecycle.ViewModel
 import com.example.moviedb.database.MovieDBUiState
 import com.example.moviedb.database.Movies
+import com.example.moviedb.database.Reviews
 import com.example.moviedb.model.Movie
 import com.example.moviedb.model.MovieCategory
+import com.example.moviedb.model.Review
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +34,10 @@ class MovieDBViewModel: ViewModel() {
                 movies = movies
             )
         }
+    }
+
+    fun getReviews(movieId: Long): List<Review> {
+        return Reviews().getReviews(movieId)
     }
 
 

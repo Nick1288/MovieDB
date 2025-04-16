@@ -16,10 +16,14 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.moviedb.model.Movie
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +38,7 @@ import com.example.moviedb.utils.Constants
 @Composable
 fun MovieDescriptionScreen(
     movie: Movie,
+    onReviewSelected: ()->Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -110,7 +115,30 @@ fun MovieDescriptionScreen(
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+
             }
+        }
+        item {
+            ElevatedCard(modifier = Modifier.fillMaxWidth(),
+                onClick = onReviewSelected) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Reviews",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.weight(1f)) // pushes arrow to the end
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Go to reviews"
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

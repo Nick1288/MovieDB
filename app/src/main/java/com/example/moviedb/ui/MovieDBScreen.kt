@@ -36,7 +36,8 @@ import com.example.moviedb.viewmodel.MovieDBViewModel
 
 enum class MovieDBScreen(@StringRes val title: Int){
     List(title = R.string.app_name),
-    Description(title = R.string.movie_description)
+    Description(title = R.string.movie_description),
+    Review(R.string.movie_reviews)
 }
 
 @Composable
@@ -112,8 +113,20 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
             }
             composable(route = MovieDBScreen.Description.name){
                 uiState.selectedMovie?.let { movie ->
-                    MovieDescriptionScreen(movie = movie,
+                    MovieDescriptionScreen(
+                        movie = movie,
+                        onReviewSelected = {
+                            navController.navigate(MovieDBScreen.Review.name)
+                        },
                         modifier = Modifier)
+                }
+            }
+            composable(route = MovieDBScreen.Review.name){
+                uiState.selectedMovie?.let { movie ->
+                    MovieReviewScreen(
+                        reviews = viewModel.getReviews(movie.id),
+                        modifier = Modifier
+                    )
                 }
             }
         }
