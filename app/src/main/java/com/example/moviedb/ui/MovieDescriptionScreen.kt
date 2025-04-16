@@ -1,5 +1,6 @@
 package com.example.moviedb.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import com.example.moviedb.model.MovieDescription
 import com.example.moviedb.ui.theme.MovieDBTheme
 import com.example.moviedb.utils.Constants
 
+@SuppressLint("QueryPermissionsNeeded")
 @Composable
 fun MovieDescriptionScreen(
     movie: Movie,
@@ -113,7 +115,7 @@ fun MovieDescriptionScreen(
     }
 }
 
-
+//for preview
 @Composable
 fun MovieDescriptionContent(
     movie: MovieDescription,

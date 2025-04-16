@@ -6,17 +6,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.moviedb.model.Movie
-import com.example.moviedb.ui.theme.MovieDBTheme
 import com.example.moviedb.utils.Constants
-import com.example.moviedb.viewmodel.MovieListViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.unit.LayoutDirection
 import com.example.moviedb.model.MovieCategory
 import androidx.compose.material3.Card
 
@@ -25,31 +20,15 @@ import androidx.compose.material3.Card
 fun MovieListScreen(
     movieList:List<Movie>,
     onMovieListItemClicked:(Movie)->Unit,
-    selectedCategory: MovieCategory,
-    onCategoryChanged:(MovieCategory)->Unit,
     modifier: Modifier = Modifier
 ) {
 
-    Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = { Text("MovieDB") }
-                )
-                MovieTabs(
-                    selectedTab = selectedCategory,
-                    onTabSelected = onCategoryChanged
-                )
-            }
-        }
-    ) { innerPadding ->
         MovieList(
             movieList = movieList,
             onMovieListItemClicked=onMovieListItemClicked,
-            modifier = Modifier.padding(innerPadding)
+            modifier = modifier
         )
     }
-}
 
 @Composable
 fun MovieTabs(
@@ -85,7 +64,7 @@ fun MovieList(movieList: List<Movie>, onMovieListItemClicked: (Movie) -> Unit, m
 }
 
 @Composable
-fun MovieListItemCard(movie: Movie, onMovieListItemClicked: (Movie) -> kotlin.Unit, modifier: Modifier = Modifier) {
+fun MovieListItemCard(movie: Movie, onMovieListItemClicked: (Movie) -> Unit, modifier: Modifier = Modifier) {
     Card(modifier = modifier,
         onClick= {onMovieListItemClicked(movie)}) {
         Row {

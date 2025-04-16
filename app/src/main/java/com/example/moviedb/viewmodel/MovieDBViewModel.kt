@@ -1,7 +1,5 @@
 package com.example.moviedb.viewmodel
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.room.util.copy
 import com.example.moviedb.database.MovieDBUiState
 import com.example.moviedb.database.Movies
 import com.example.moviedb.model.Movie
@@ -11,10 +9,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class MovieDBViewModel {
+class MovieDBViewModel: ViewModel() {
 
     private val _uiState = MutableStateFlow(MovieDBUiState())
     val uiState: StateFlow<MovieDBUiState> = _uiState.asStateFlow()
+
+    init {
+        setSelectedCategory(MovieCategory.POPULAR) // 👈 Initial load!
+    }
 
     fun setSelectedMovie(movie: Movie){
         _uiState.update { currentState ->

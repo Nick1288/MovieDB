@@ -1,10 +1,10 @@
-@file:kotlin.OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 @file:Suppress("INFERRED_TYPE_VARIABLE_INTO_EMPTY_INTERSECTION_WARNING")
 
 package com.example.moviedb.ui
 
-import androidx.annotation.OptIn
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -23,7 +23,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -70,6 +69,7 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
                navController: NavHostController = rememberNavController()
 ) {
     val backStackEntity by navController.currentBackStackEntryAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     val currentScreen = MovieDBScreen.valueOf(
         backStackEntity?.destination?.route ?: MovieDBScreen.List.name
@@ -77,13 +77,23 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
 
     Scaffold(
         topBar = {
-            MovieDBAppBar(currScreen = currentScreen,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
-            )
+            Column {
+                MovieDBAppBar(
+                    currScreen = currentScreen,
+                    canNavigateBack = navController.previousBackStackEntry != null,
+                    navigateUp = { navController.navigateUp() }
+                )
+
+                // Only show tabs when on the List screen
+                if (currentScreen == MovieDBScreen.List) {
+                    MovieTabs(
+                        selectedTab = uiState.selectedCategory,
+                        onTabSelected = { viewModel.setSelectedCategory(it) }
+                    )
+                }
+            }
         }
     ) { innerPadding ->
-        val uiState by viewModel.uiState.collectAsState()
         NavHost(
             navController = navController,
             startDestination = MovieDBScreen.List.name,
@@ -97,10 +107,6 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
                     onMovieListItemClicked = { movie ->
                         viewModel.setSelectedMovie(movie)
                         navController.navigate(MovieDBScreen.Description.name)
-                    },
-                    selectedCategory = uiState.selectedCategory,
-                    onCategoryChanged = { category ->
-                        viewModel.setSelectedCategory(category)
                     },
                     modifier = Modifier.fillMaxSize().padding(16.dp))
             }

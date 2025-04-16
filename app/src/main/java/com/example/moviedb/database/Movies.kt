@@ -8,12 +8,62 @@ class Movies {
     fun getMovies(category: MovieCategory): List<Movie> {
         return when (category) {
             MovieCategory.POPULAR -> listOf(
-                Movie(278, "The Shawshank Redemption", "/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg", "/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg", "1994-09-23", "Imprisoned in the 1940s for the double murder of his wife and her lover...", listOf("Drama"), "https://www.warnerbros.com/movies/shawshank-redemption", "tt0111161"),
-                Movie(238, "The Godfather", "/3bhkrj58Vtu7enYsRolD1fZdja1.jpg", "/tmU7GeKVybMWFButWEGl2M4GeiP.jpg", "1972-03-14", "Spanning the years 1945 to 1955, a chronicle of the fictional Italian-American Corleone crime family...", listOf("Crime", "Drama"), "https://www.paramount.com/movies/godfather", "tt0068646"),
-                Movie(372058, "Your Name.", "/8GJsy7w7frGquw1cy9jasOGNNI1.jpg", "/8x9iKH8kWA0zdkgNdpAew7OstYe.jpg", "2016-08-26", "High schoolers Mitsuha and Taki are complete strangers living separate lives. But one night, they suddenly switch places...", listOf("Animation", "Drama", "Fantasy", "Romance"), "https://www.toho.co.jp/movie/lineup/yourname.html", "tt5311514"),
-                Movie(122, "The Lord of the Rings: The Return of the King", "/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg", "/2u7zbn8EudG6kLlBzUYqP8RyFU4.jpg", "2003-12-17", "As armies mass for a final battle that will decide the fate of the world...", listOf("Adventure", "Drama", "Fantasy"), "https://www.lordoftherings.net/", "tt0167260"),
-                Movie(13, "Forrest Gump", "/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg", "/ghgfzbEV7kbpbi1O8eIILKVXEA8.jpg", "1994-06-23", "A man with a low IQ has accomplished great things in his life...", listOf("Drama", "Romance"), "https://www.paramount.com/movies/forrest-gump", "tt0109830")  )
-
+                Movie(
+                    278,
+                    "The Shawshank Redemption",
+                    "/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
+                    "/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg",
+                    "1994-09-23",
+                    "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+                    listOf("Drama"),
+                    "https://www.warnerbros.com/movies/shawshank-redemption",
+                    "tt0111161"
+                ),
+                Movie(
+                    238,
+                    "The Godfather",
+                    "/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
+                    "/tmU7GeKVybMWFButWEGl2M4GeiP.jpg",
+                    "1972-03-14",
+                    "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+                    listOf("Crime", "Drama"),
+                    "https://www.paramount.com/movies/godfather",
+                    "tt0068646"
+                ),
+                Movie(
+                    372058,
+                    "Your Name.",
+                    "/8GJsy7w7frGquw1cy9jasOGNNI1.jpg",
+                    "/8x9iKH8kWA0zdkgNdpAew7OstYe.jpg",
+                    "2016-08-26",
+                    "Two teenagers share a profound, magical connection upon discovering they are swapping bodies. But things become even more complicated when they decide to meet in person.",
+                    listOf("Animation", "Drama", "Fantasy", "Romance"),
+                    "https://www.toho.co.jp/movie/lineup/yourname.html",
+                    "tt5311514"
+                ),
+                Movie(
+                    122,
+                    "The Lord of the Rings: The Return of the King",
+                    "/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+                    "/2u7zbn8EudG6kLlBzUYqP8RyFU4.jpg",
+                    "2003-12-17",
+                    "Gandalf and Aragorn lead the World of Men against Sauron's army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.",
+                    listOf("Adventure", "Drama", "Fantasy"),
+                    "https://www.lordoftherings.net/",
+                    "tt0167260"
+                ),
+                Movie(
+                    13,
+                    "Forrest Gump",
+                    "/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg",
+                    "/ghgfzbEV7kbpbi1O8eIILKVXEA8.jpg",
+                    "1994-06-23",
+                    "The presidencies of Kennedy and Johnson, the Vietnam War, the Watergate scandal and other historical events unfold from the perspective of an Alabama man with an IQ of 75.",
+                    listOf("Drama", "Romance"),
+                    "https://www.paramount.com/movies/forrest-gump",
+                    "tt0109830"
+                )
+            )
             MovieCategory.TOP_RATED -> listOf(
                 Movie(240, "The Godfather Part II", "/hek3koDUyRQk7FIhPXsa6mT2Zc3.jpg", "/kGzFbGhp99zva6oZODW5atUtnqi.jpg", "1974-12-20", "In the continuing saga of the Corleone crime family...", listOf("Crime", "Drama"), "https://www.paramount.com/movies/godfather-part-ii", "tt0071562"),
                 Movie(424, "Schindler's List", "/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg", "/zb6fM1CX41D9rF9hdgclu0peUmy.jpg", "1993-12-15", "The true story of how businessman Oskar Schindler saved over a thousand Jewish lives...", listOf("Biography", "Drama", "History"), "https://www.universalpictures.com/movies/schindlers-list", "tt0108052"),
