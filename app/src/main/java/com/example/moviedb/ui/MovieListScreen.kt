@@ -70,7 +70,7 @@ fun MovieListItemCard(movie: Movie, onMovieListItemClicked: (Movie) -> Unit, mod
         Row {
             Box {
                 AsyncImage(
-                    model = Constants.POSTER_IMAGE_BASE_URL + Constants.POSTER_IMAGE_BASE_WIDTH + movie.posterPath,
+                    model = Constants.POSTER_IMAGE_BASE_URL + Constants.POSTER_IMAGE_BASE_WIDTH + movie.poster_path,
                     contentDescription = movie.title,
                     modifier = Modifier
                         .width(92.dp)
@@ -86,7 +86,7 @@ fun MovieListItemCard(movie: Movie, onMovieListItemClicked: (Movie) -> Unit, mod
                 Spacer(modifier = Modifier.size(8.dp))
 
                 Text(
-                    text = movie.releaseDate,
+                    text = movie.release_date,
                     style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.size(8.dp))

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
 }
 
 android {
@@ -57,10 +58,18 @@ dependencies {
 
     // Retrofit
     implementation(libs.retrofit)
+    implementation(libs.converterGson)
+
+    //noinspection GradleDependency
+    implementation(libs.okhttp)
+
     // Retrofit with Scalar Converter
     implementation(libs.converter.scalars)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+
+    // Serialization JSON
+    implementation(libs.kotlinx.serialization.json)
 
     //Room
     val room_version = "2.7.0"

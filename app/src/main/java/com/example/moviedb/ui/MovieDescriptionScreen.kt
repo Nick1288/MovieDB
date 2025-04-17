@@ -49,7 +49,7 @@ fun MovieDescriptionScreen(
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
-                    model = Constants.POSTER_IMAGE_BASE_URL + Constants.POSTER_IMAGE_BASE_WIDTH + movie.posterPath,
+                    model = Constants.POSTER_IMAGE_BASE_URL + Constants.POSTER_IMAGE_BASE_WIDTH + movie.poster_path,
                     contentDescription = movie.title,
                     modifier = Modifier
                         .width(92.dp)
@@ -72,15 +72,19 @@ fun MovieDescriptionScreen(
         }
 
         item {
-            Text(text = "Genres:", style = MaterialTheme.typography.titleMedium)
-            movie.genres.forEach { genre ->
-                Text("- $genre")
+            if (!movie.genres.isEmpty()) {
+                Text(text = "Genres:", style = MaterialTheme.typography.titleMedium)
+                movie.genres.forEach { genre ->
+                    genre?.name?.let { name ->
+                        Text("- $name")
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
             }
-            Spacer(modifier = Modifier.height(16.dp))
         }
 
         item {
-            movie.homePage?.let { homepage ->
+            movie.homepage?.let { homepage ->
                 val context = LocalContext.current
                 Text(
                     text = "Open Homepage",
@@ -95,7 +99,7 @@ fun MovieDescriptionScreen(
         }
 
         item {
-            movie.imdbID?.let { imdbId ->
+            movie.imdb_id?.let { imdbId ->
                 val context = LocalContext.current
                 Text(
                     text = "Open on IMDB",

@@ -3,7 +3,7 @@ package com.example.moviedb.database
 import com.example.moviedb.model.AuthorDetails
 import com.example.moviedb.model.Review
 
-class Reviews {
+/*class Reviews {
     fun getReviews(movieId: Long): List<Review> {
         return when (movieId) {
             278L -> listOf( // Shawshank Redemption
@@ -69,4 +69,4 @@ class Reviews {
             else -> emptyList()
         }
     }
-}
+}*/

@@ -4,7 +4,7 @@ import com.example.moviedb.model.Movie
 import com.example.moviedb.model.MovieCategory
 
 
-class Movies {
+/*class Movies {
     fun getMovies(category: MovieCategory): List<Movie> {
         return when (category) {
             MovieCategory.POPULAR -> listOf(
@@ -80,4 +80,4 @@ class Movies {
             )
         }
     }
-}
+}*/

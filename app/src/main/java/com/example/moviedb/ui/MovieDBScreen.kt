@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,6 +33,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.moviedb.R
 import com.example.moviedb.viewmodel.MovieDBViewModel
+import com.example.moviedb.viewmodel.MovieDescriptionUIState
+import com.example.moviedb.viewmodel.MovieListUIState
+import com.example.moviedb.viewmodel.MovieReviewUIState
 
 
 enum class MovieDBScreen(@StringRes val title: Int){
@@ -72,6 +76,11 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
     val backStackEntity by navController.currentBackStackEntryAsState()
     val uiState by viewModel.uiState.collectAsState()
 
+    //Ui state for each screen
+    val movieListUiState by viewModel.movieListUiState.collectAsState()
+    val movieDescriptionUiState by viewModel.movieDescriptionUiState.collectAsState()
+    val movieReviewUiState by viewModel.movieReviewUiState.collectAsState()
+
     val currentScreen = MovieDBScreen.valueOf(
         backStackEntity?.destination?.route ?: MovieDBScreen.List.name
     )
@@ -103,30 +112,59 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
                 .padding(innerPadding)
         ){
             composable(route = MovieDBScreen.List.name){
-                MovieListScreen(
-                    movieList = uiState.movies,
-                    onMovieListItemClicked = { movie ->
-                        viewModel.setSelectedMovie(movie)
-                        navController.navigate(MovieDBScreen.Description.name)
-                    },
-                    modifier = Modifier.fillMaxSize().padding(16.dp))
-            }
+                when (movieListUiState) {
+                    is MovieListUIState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+                    is MovieListUIState.Success -> {
+                        val movies = (movieListUiState as MovieListUIState.Success).movies
+                        MovieList(
+                            movieList = movies,
+                            onMovieListItemClicked = { movie ->
+                                viewModel.setSelectedMovie(movie)
+                                navController.navigate(MovieDBScreen.Description.name)
+                            },
+                            modifier = Modifier.fillMaxSize().padding(16.dp))
+                    }
+                    is MovieListUIState.Error -> {
+                        Text("Failed to load movies.")
+                    }
+                }
+                 }
             composable(route = MovieDBScreen.Description.name){
-                uiState.selectedMovie?.let { movie ->
-                    MovieDescriptionScreen(
-                        movie = movie,
-                        onReviewSelected = {
-                            navController.navigate(MovieDBScreen.Review.name)
-                        },
-                        modifier = Modifier)
+                when (movieDescriptionUiState) {
+                    is MovieDescriptionUIState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+                    is MovieDescriptionUIState.Success -> {
+                        uiState.selectedMovie?.let { movie ->
+                            MovieDescriptionScreen(
+                                movie = movie,
+                                onReviewSelected = {
+                                    viewModel.getReviews(movie.id)
+                                    navController.navigate(MovieDBScreen.Review.name)
+                                },
+                                modifier = Modifier)
+                        }}
+                    is MovieDescriptionUIState.Error -> {
+                        Text("Failed to load movies.")
+                    }
                 }
             }
             composable(route = MovieDBScreen.Review.name){
-                uiState.selectedMovie?.let { movie ->
-                    MovieReviewScreen(
-                        reviews = viewModel.getReviews(movie.id),
-                        modifier = Modifier
-                    )
+                when (movieReviewUiState) {
+                    is MovieReviewUIState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+                    is MovieReviewUIState.Success -> {
+                        val reviews = (movieReviewUiState as MovieReviewUIState.Success).reviews
+                            MovieReviewScreen(
+                                reviews=reviews,
+                                modifier = Modifier)
+                        }
+                    is MovieReviewUIState.Error -> {
+                        Text("Failed to load movies.")
+                    }
                 }
             }
         }
