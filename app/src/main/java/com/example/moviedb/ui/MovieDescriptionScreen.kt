@@ -16,12 +16,22 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.moviedb.model.Movie
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowOverflow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
@@ -34,6 +44,7 @@ import com.example.moviedb.model.MovieDescription
 import com.example.moviedb.ui.theme.MovieDBTheme
 import com.example.moviedb.utils.Constants
 
+@OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("QueryPermissionsNeeded")
 @Composable
 fun MovieDescriptionScreen(
@@ -41,25 +52,30 @@ fun MovieDescriptionScreen(
     onReviewSelected: ()->Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scrollState = rememberScrollState()
 
-    LazyColumn(modifier = modifier.padding(16.dp)) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 500.dp)
             ) {
-                AsyncImage(
-                    model = Constants.POSTER_IMAGE_BASE_URL + Constants.POSTER_IMAGE_BASE_WIDTH + movie.poster_path,
-                    contentDescription = movie.title,
+                Column(
                     modifier = Modifier
-                        .width(92.dp)
-                        .height(138.dp),
-                    contentScale = ContentScale.Crop
-                )
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                ) {
+                    AsyncImage(
+                        model = Constants.POSTER_IMAGE_BASE_URL + Constants.DESCRIPTION_IMAGE_BASE_WIDTH + movie.poster_path,
+                        contentDescription = movie.title,
+                        modifier = Modifier.fillMaxWidth(),
+                        contentScale = ContentScale.FillWidth
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
         }
-
         item {
             ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -72,13 +88,28 @@ fun MovieDescriptionScreen(
         }
 
         item {
-            if (!movie.genres.isEmpty()) {
-                Text(text = "Genres:", style = MaterialTheme.typography.titleMedium)
-                movie.genres.forEach { genre ->
-                    genre?.name?.let { name ->
-                        Text("- $name")
+            if (movie.genres.isNotEmpty()) {
+                Text(
+                    text = "Genres:",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                FlowRow(
+                    overflow = FlowRowOverflow.Visible,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    movie.genres.forEach { genre ->
+                        genre?.name?.let { name ->
+                            AssistChip(
+                                onClick = {},
+                                label = { Text(text = name) },
+                                colors = AssistChipDefaults.assistChipColors()
+                            )
+                        }
                     }
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }

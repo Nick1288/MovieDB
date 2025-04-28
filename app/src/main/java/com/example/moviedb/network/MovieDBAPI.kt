@@ -4,6 +4,7 @@ import com.example.moviedb.model.Movie
 import com.example.moviedb.model.MovieListResponse
 import com.example.moviedb.model.Review
 import com.example.moviedb.model.ReviewListResponse
+import com.example.moviedb.model.VideoResponse
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -45,4 +46,10 @@ interface MovieAPIService {
         @Path("movie_id") movieId: Long,
         @Query("api_key") apiKey: String
     ): ReviewListResponse
+
+    @GET("movie/{movie_id}/videos")
+    suspend fun getVideo(
+        @Path("movie_id") movieId: Long,
+        @Query("api_key") apiKey: String
+    ): VideoResponse
 }

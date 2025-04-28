@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.moviedb.database.MovieDBUiState
 import com.example.moviedb.model.Movie
 import com.example.moviedb.model.MovieCategory
+import com.example.moviedb.model.MovieVideo
 import com.example.moviedb.model.Review
 import com.example.moviedb.network.MovieDBAPI
 import com.example.moviedb.utils.Constants
@@ -31,6 +32,12 @@ sealed interface MovieReviewUIState {
     object Loading : MovieReviewUIState
 }
 
+sealed interface MovieVideoUIState {
+    data class Success(val videos: List<MovieVideo>?) : MovieVideoUIState
+    object Error : MovieVideoUIState
+    object Loading : MovieVideoUIState
+}
+
 class MovieDBViewModel: ViewModel() {
 
     private val _uiState = MutableStateFlow(MovieDBUiState())
@@ -48,6 +55,10 @@ class MovieDBViewModel: ViewModel() {
     private val _movieReviewUiState = MutableStateFlow<MovieReviewUIState>(MovieReviewUIState.Loading)
     val movieReviewUiState: StateFlow<MovieReviewUIState> = _movieReviewUiState
 
+    //Movie Videos API UI States
+    private val _movieVideoUiState = MutableStateFlow<MovieVideoUIState>(MovieVideoUIState.Loading)
+    val movieVideoUiState: StateFlow<MovieVideoUIState> = _movieVideoUiState
+
     init {
         setSelectedCategory(MovieCategory.POPULAR) //initialisation with popular
     }
@@ -64,7 +75,7 @@ class MovieDBViewModel: ViewModel() {
                 _movieDescriptionUiState.value = MovieDescriptionUIState.Success(_uiState.value.selectedMovie)
 
             } catch (e: Exception) {
-                _movieListUiState.value = MovieListUIState.Error
+                _movieDescriptionUiState.value = MovieDescriptionUIState.Error
                 e.printStackTrace()
             }
         }
@@ -105,7 +116,23 @@ class MovieDBViewModel: ViewModel() {
                 _movieReviewUiState.value = MovieReviewUIState.Success(response.results)
 
             } catch (e: Exception) {
-                _movieListUiState.value = MovieListUIState.Error
+                _movieReviewUiState.value = MovieReviewUIState.Error
+                e.printStackTrace()
+            }
+        }
+
+    }
+
+    fun getVideos(movieId: Long) {
+        _movieVideoUiState.value = MovieVideoUIState.Loading
+        viewModelScope.launch {
+            try {
+                val response = MovieDBAPI.retrofitService.getVideo(movieId, Constants.API_KEY)
+
+                _movieVideoUiState.value = MovieVideoUIState.Success(response.results)
+
+            } catch (e: Exception) {
+                _movieVideoUiState.value = MovieVideoUIState.Error
                 e.printStackTrace()
             }
         }

@@ -36,6 +36,7 @@ import com.example.moviedb.viewmodel.MovieDBViewModel
 import com.example.moviedb.viewmodel.MovieDescriptionUIState
 import com.example.moviedb.viewmodel.MovieListUIState
 import com.example.moviedb.viewmodel.MovieReviewUIState
+import com.example.moviedb.viewmodel.MovieVideoUIState
 
 
 enum class MovieDBScreen(@StringRes val title: Int){
@@ -80,6 +81,7 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
     val movieListUiState by viewModel.movieListUiState.collectAsState()
     val movieDescriptionUiState by viewModel.movieDescriptionUiState.collectAsState()
     val movieReviewUiState by viewModel.movieReviewUiState.collectAsState()
+    val movieVideoUiState by viewModel.movieVideoUiState.collectAsState()
 
     val currentScreen = MovieDBScreen.valueOf(
         backStackEntity?.destination?.route ?: MovieDBScreen.List.name
@@ -118,7 +120,7 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
                     }
                     is MovieListUIState.Success -> {
                         val movies = (movieListUiState as MovieListUIState.Success).movies
-                        MovieList(
+                        MovieGridScreen(
                             movieList = movies,
                             onMovieListItemClicked = { movie ->
                                 viewModel.setSelectedMovie(movie)
@@ -142,6 +144,7 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
                                 movie = movie,
                                 onReviewSelected = {
                                     viewModel.getReviews(movie.id)
+                                    viewModel.getVideos(movie.id)
                                     navController.navigate(MovieDBScreen.Review.name)
                                 },
                                 modifier = Modifier)
@@ -151,22 +154,27 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
                     }
                 }
             }
-            composable(route = MovieDBScreen.Review.name){
-                when (movieReviewUiState) {
-                    is MovieReviewUIState.Loading -> {
+            composable(route = MovieDBScreen.Review.name) {
+                when {
+                    movieReviewUiState is MovieReviewUIState.Loading || movieVideoUiState is MovieVideoUIState.Loading -> {
                         CircularProgressIndicator()
                     }
-                    is MovieReviewUIState.Success -> {
+                    movieReviewUiState is MovieReviewUIState.Success && movieVideoUiState is MovieVideoUIState.Success -> {
                         val reviews = (movieReviewUiState as MovieReviewUIState.Success).reviews
-                            MovieReviewScreen(
-                                reviews=reviews,
-                                modifier = Modifier)
-                        }
-                    is MovieReviewUIState.Error -> {
-                        Text("Failed to load movies.")
+                        val videos = (movieVideoUiState as MovieVideoUIState.Success).videos
+
+                        MovieReviewScreen(
+                            reviews = reviews,
+                            videos = videos,
+                            modifier = Modifier
+                        )
+                    }
+                    movieReviewUiState is MovieReviewUIState.Error || movieVideoUiState is MovieVideoUIState.Error -> {
+                        Text("Failed to load data.")
                     }
                 }
             }
+
         }
 
 

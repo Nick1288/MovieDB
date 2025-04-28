@@ -63,6 +63,10 @@ dependencies {
     //noinspection GradleDependency
     implementation(libs.okhttp)
 
+    //exoplayer
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+
     // Retrofit with Scalar Converter
     implementation(libs.converter.scalars)
     implementation(libs.androidx.navigation.runtime.ktx)
