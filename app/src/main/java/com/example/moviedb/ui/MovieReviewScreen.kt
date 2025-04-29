@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.exoplayer.ExoPlayer
 import android.net.Uri
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.moviedb.model.MovieVideo
 import com.example.moviedb.model.Review
@@ -27,61 +29,84 @@ fun MovieReviewScreen(
     videos: List<MovieVideo>?,
     modifier: Modifier = Modifier,
 ) {
-    Column(
+    LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Reviews Section
-        Text(
-            text = "Reviews",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
+        item {
+            Text(
+                text = "Reviews",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
         if (reviews.isNullOrEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "No reviews available.")
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "No reviews available.")
+                }
             }
         } else {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(reviews) { review ->
-                    ReviewCard(review = review)
+            item {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp) // 👈 Add a height constraint!
+                ) {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(reviews) { review ->
+                            ReviewCard(review = review)
+                        }
+                    }
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
         // Videos Section
-        Text(
-            text = "Trailers",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+        item {
+            Text(
+                text = "Trailers",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
 
         if (videos.isNullOrEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "No videos available.")
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "No videos available.")
+                }
             }
         } else {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(videos) { video ->
-                    MovieVideoCard(video = video)
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp) // 👈 Add a height constraint!
+                ) {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(videos) { video ->
+                            MovieVideoCard(video = video)
+                        }
+                    }
                 }
             }
         }
@@ -91,8 +116,13 @@ fun MovieReviewScreen(
 
 @Composable
 fun ReviewCard(review: Review) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+    Card(modifier = Modifier
+        .width(300.dp)
+        .padding(8.dp)) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()) // 👈 make inner content scrollable
+            .padding(16.dp)) {
             Text(text = review.author, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = "Rating: ${review.author_details.rating}/10", style = MaterialTheme.typography.bodySmall)
@@ -132,24 +162,22 @@ fun VideoPlayer(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            val mediaItem = MediaItem.fromUri(videoUrl.toUri())
-            setMediaItem(mediaItem)
-            prepare()
-            playWhenReady = false
-        }
+    // create exo player once only, we only need one instance of it,
+    // that is in this screen
+    val exoPlayer = remember { ExoPlayer.Builder(context).build() }
+
+    LaunchedEffect(videoUrl) {
+        exoPlayer.setMediaItem(MediaItem.fromUri(videoUrl.toUri()))
+        exoPlayer.prepare()
+        exoPlayer.playWhenReady = false
     }
 
-    DisposableEffect(
-        AndroidView(factory = {
-            PlayerView(context).apply {
-                player = exoPlayer
-            }
-        }, modifier = modifier)
-    ) {
+    AndroidView(factory = { PlayerView(context).apply { player = exoPlayer } })
+
+    DisposableEffect(Unit) {
         onDispose {
             exoPlayer.release()
         }
     }
+
 }
