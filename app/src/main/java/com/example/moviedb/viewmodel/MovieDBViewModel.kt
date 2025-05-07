@@ -7,10 +7,13 @@ import com.example.moviedb.model.MovieCategory
 import com.example.moviedb.model.MovieVideo
 import com.example.moviedb.model.Review
 import com.example.moviedb.network.MovieDBAPI
+import com.example.moviedb.repository.MovieRepository
+import com.example.moviedb.utils.ConnectivityObserver
 import com.example.moviedb.utils.Constants
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -38,7 +41,8 @@ sealed interface MovieVideoUIState {
     object Loading : MovieVideoUIState
 }
 
-class MovieDBViewModel: ViewModel() {
+class MovieDBViewModel(private val repository: MovieRepository,
+                       private val connectivityObserver: ConnectivityObserver): ViewModel() {
 
     private val _uiState = MutableStateFlow(MovieDBUiState())
     val uiState: StateFlow<MovieDBUiState> = _uiState.asStateFlow()
@@ -60,7 +64,21 @@ class MovieDBViewModel: ViewModel() {
     val movieVideoUiState: StateFlow<MovieVideoUIState> = _movieVideoUiState
 
     init {
+        observeConnectivity()
         setSelectedCategory(MovieCategory.POPULAR) //initialisation with popular
+    }
+
+    private fun observeConnectivity() {
+        viewModelScope.launch {
+            connectivityObserver.observe().collect { status ->
+                if (status == ConnectivityObserver.Status.Available) {
+                    // If category is selected, auto-refresh
+                    _uiState.value.selectedCategory.let {
+                        setSelectedCategory(it)
+                    }
+                }
+            }
+        }
     }
 
     fun setSelectedMovie(movie: Movie){
@@ -70,7 +88,8 @@ class MovieDBViewModel: ViewModel() {
                 val response = MovieDBAPI.retrofitService.getMovieDetails(movie.id, Constants.API_KEY)
 
                 _uiState.update { currentState ->
-                    currentState.copy(selectedMovie = response)
+                    currentState.copy(
+                        selectedMovie = response)
                 }
                 _movieDescriptionUiState.value = MovieDescriptionUIState.Success(_uiState.value.selectedMovie)
 
@@ -82,30 +101,30 @@ class MovieDBViewModel: ViewModel() {
 
     }
 
-    fun setSelectedCategory(category: MovieCategory){
+    fun setSelectedCategory(category: MovieCategory) {
         _movieListUiState.value = MovieListUIState.Loading
+
         viewModelScope.launch {
-            try {
-                val response = when (category) {
-                    MovieCategory.POPULAR -> MovieDBAPI.retrofitService.getPopularMovies(Constants.API_KEY).results
-                    MovieCategory.TOP_RATED -> MovieDBAPI.retrofitService.getTopRatedMovies(Constants.API_KEY).results
-                    MovieCategory.FAVORITES -> listOf()
-                }
+            repository.getMoviesByCategory(category)
+                .collect { result ->
+                    _uiState.update {
+                        it.copy(
+                            selectedCategory = category,
+                            cachedMovies = result
+                        )
+                    }
 
-                _uiState.update { current ->
-                    current.copy(
-                        selectedCategory = category,
-                        movies = response
-                    )
+                    if (result.isEmpty()) {
+                        _movieListUiState.value = MovieListUIState.Error
+                    } else {
+                        _movieListUiState.value = MovieListUIState.Success(result)
+                    }
                 }
-                _movieListUiState.value = MovieListUIState.Success(_uiState.value.movies)
-
-            } catch (e: Exception) {
-                _movieListUiState.value = MovieListUIState.Error
-                e.printStackTrace()
-            }
         }
     }
+
+
+
 
     fun getReviews(movieId: Long) {
         _movieReviewUiState.value = MovieReviewUIState.Loading

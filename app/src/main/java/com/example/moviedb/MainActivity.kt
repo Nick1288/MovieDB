@@ -8,23 +8,52 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
+import com.example.moviedb.database.Movies
+import com.example.moviedb.network.MovieDBAPI
+import com.example.moviedb.repository.MovieRepository
 import com.example.moviedb.ui.MovieDbApp
 import com.example.moviedb.ui.MovieDescriptionScreen
 import com.example.moviedb.ui.MovieListScreen
 import com.example.moviedb.ui.MovieReviewScreen
 import com.example.moviedb.ui.theme.MovieDBTheme
+import com.example.moviedb.utils.MovieDBViewModelFactory
+import com.example.moviedb.utils.NetworkConnectivityObserver
+import com.example.moviedb.viewmodel.MovieDBViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val database = Room.databaseBuilder(
+            applicationContext,
+            Movies::class.java,
+            "movies.db"
+        ).build()
+
+        val repository = MovieRepository(
+            api = MovieDBAPI,
+            dao = database.movieDao()
+        )
+
+        val connectivityObserver = NetworkConnectivityObserver(applicationContext)
+
+        val factory = MovieDBViewModelFactory(repository, connectivityObserver)
+
+
+        val viewModel = ViewModelProvider(
+            this,
+            MovieDBViewModelFactory(repository, connectivityObserver)
+        )[MovieDBViewModel::class.java]
+
         setContent {
             MovieDBTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MovieDbApp()
+                    MovieDbApp(viewModel=viewModel)
                 }
             }
             }

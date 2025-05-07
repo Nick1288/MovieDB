@@ -5,7 +5,7 @@ import com.example.moviedb.model.MovieCategory
 
 data class MovieDBUiState
     (
-    val selectedMovie: Movie?= null,
-    val selectedCategory: MovieCategory = MovieCategory.POPULAR,
-    val movies: List<Movie> = emptyList(),
+        val selectedMovie: Movie?= null,
+        val selectedCategory: MovieCategory = MovieCategory.POPULAR,
+        val cachedMovies: List<Movie> = emptyList()
     )

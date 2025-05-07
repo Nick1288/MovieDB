@@ -1,5 +1,7 @@
 package com.example.moviedb.model
 
+import com.example.moviedb.database.CachedMovieEntity
+
 data class Movie(
     var id: Long = 0L,
     var title: String="",
@@ -10,4 +12,6 @@ data class Movie(
     var genres: List<Genre?> = emptyList(),
     var homepage: String? = "",
     var imdb_id: String? = ""
+
 )
+

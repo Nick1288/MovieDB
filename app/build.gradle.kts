@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
+    id ("kotlin-kapt")
 }
 
 android {
@@ -80,9 +81,7 @@ dependencies {
 
     implementation(libs.androidx.room.runtime)
 
-    // If this project only uses Java source, use the Java annotationProcessor
-    // No additional plugins are necessary
-    annotationProcessor(libs.androidx.room.compiler)
+    kapt(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

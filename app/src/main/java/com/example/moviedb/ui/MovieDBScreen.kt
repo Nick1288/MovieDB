@@ -4,11 +4,16 @@
 package com.example.moviedb.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,8 +27,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -71,7 +78,7 @@ fun MovieDBAppBar(
     )
 }
 @Composable
-fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
+fun MovieDbApp(viewModel: MovieDBViewModel,
                navController: NavHostController = rememberNavController()
 ) {
     val backStackEntity by navController.currentBackStackEntryAsState()
@@ -113,11 +120,12 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
                 .fillMaxSize()
                 .padding(innerPadding)
         ){
-            composable(route = MovieDBScreen.List.name){
+            composable(route = MovieDBScreen.List.name) {
                 when (movieListUiState) {
                     is MovieListUIState.Loading -> {
                         CircularProgressIndicator()
                     }
+
                     is MovieListUIState.Success -> {
                         val movies = (movieListUiState as MovieListUIState.Success).movies
                         MovieGridScreen(
@@ -126,13 +134,32 @@ fun MovieDbApp(viewModel: MovieDBViewModel = viewModel(),
                                 viewModel.setSelectedMovie(movie)
                                 navController.navigate(MovieDBScreen.Description.name)
                             },
-                            modifier = Modifier.fillMaxSize().padding(16.dp))
+                            modifier = Modifier.fillMaxSize().padding(16.dp)
+                        )
                     }
+
                     is MovieListUIState.Error -> {
-                        Text("Failed to load movies.")
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(80.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    "No internet connection.\nPlease reconnect to load movies.",
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
                     }
+
                 }
-                 }
+            }
             composable(route = MovieDBScreen.Description.name){
                 when (movieDescriptionUiState) {
                     is MovieDescriptionUIState.Loading -> {
