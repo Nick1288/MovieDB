@@ -13,6 +13,7 @@ class NetworkConnectivityObserver(
     context: Context
 ) : ConnectivityObserver {
 
+    //“Give me the system service that monitors network connectivity.”
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
     override fun observe(): Flow<ConnectivityObserver.Status> = callbackFlow {

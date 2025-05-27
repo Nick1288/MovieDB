@@ -44,6 +44,13 @@ import com.example.moviedb.viewmodel.MovieDescriptionUIState
 import com.example.moviedb.viewmodel.MovieListUIState
 import com.example.moviedb.viewmodel.MovieReviewUIState
 import com.example.moviedb.viewmodel.MovieVideoUIState
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 
 enum class MovieDBScreen(@StringRes val title: Int){
@@ -56,11 +63,28 @@ enum class MovieDBScreen(@StringRes val title: Int){
 fun MovieDBAppBar(
     currScreen: MovieDBScreen,
     canNavigateBack:Boolean,
+    lastSynced: Long?,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ){
+    val formattedTime = lastSynced?.let {
+        val instant = Instant.ofEpochMilli(it)
+        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+            .withZone(ZoneId.systemDefault())
+        formatter.format(instant)
+    } ?: "Not yet synced"
     TopAppBar(
-        title = {Text(stringResource(currScreen.title))},
+        title = {
+            Column {
+                Text(stringResource(currScreen.title))
+                if (lastSynced != null) {
+                    Text(
+                        text = "Last updated: $formattedTime",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
@@ -89,6 +113,7 @@ fun MovieDbApp(viewModel: MovieDBViewModel,
     val movieDescriptionUiState by viewModel.movieDescriptionUiState.collectAsState()
     val movieReviewUiState by viewModel.movieReviewUiState.collectAsState()
     val movieVideoUiState by viewModel.movieVideoUiState.collectAsState()
+    val lastSynced by viewModel.lastSynced.collectAsState()
 
     val currentScreen = MovieDBScreen.valueOf(
         backStackEntity?.destination?.route ?: MovieDBScreen.List.name
@@ -100,6 +125,7 @@ fun MovieDbApp(viewModel: MovieDBViewModel,
                 MovieDBAppBar(
                     currScreen = currentScreen,
                     canNavigateBack = navController.previousBackStackEntry != null,
+                    lastSynced=lastSynced,
                     navigateUp = { navController.navigateUp() }
                 )
 

@@ -1,5 +1,8 @@
 package com.example.moviedb
-
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
+import androidx.work.ExistingWorkPolicy
 import com.example.moviedb.database.Movies
 import com.example.moviedb.network.MovieDBAPI
 import com.example.moviedb.repository.MovieRepository
@@ -21,6 +25,7 @@ import com.example.moviedb.ui.theme.MovieDBTheme
 import com.example.moviedb.utils.MovieDBViewModelFactory
 import com.example.moviedb.utils.NetworkConnectivityObserver
 import com.example.moviedb.viewmodel.MovieDBViewModel
+import com.example.moviedb.workers.SyncMoviesWorker
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,13 +44,25 @@ class MainActivity : ComponentActivity() {
 
         val connectivityObserver = NetworkConnectivityObserver(applicationContext)
 
-        val factory = MovieDBViewModelFactory(repository, connectivityObserver)
-
-
         val viewModel = ViewModelProvider(
             this,
-            MovieDBViewModelFactory(repository, connectivityObserver)
+            MovieDBViewModelFactory(application, repository, connectivityObserver)
         )[MovieDBViewModel::class.java]
+
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val syncRequest = OneTimeWorkRequestBuilder<SyncMoviesWorker>()
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(applicationContext).enqueueUniqueWork(
+            "sync_movies_on_network",
+            ExistingWorkPolicy.REPLACE,
+            syncRequest
+        )
+
 
         setContent {
             MovieDBTheme {

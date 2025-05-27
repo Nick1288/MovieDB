@@ -1,53 +1,33 @@
 package com.example.moviedb.repository
 
+import android.content.Context
 import com.example.moviedb.network.MovieDBAPI
 import com.example.moviedb.database.MovieDao
 import com.example.moviedb.utils.toCachedEntity
 import com.example.moviedb.utils.toDomainModel
 import com.example.moviedb.model.Movie
 import com.example.moviedb.model.MovieCategory
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.moviedb.model.MovieListResponse
 import com.example.moviedb.utils.Constants
+import com.example.moviedb.workers.SyncMoviesWorker
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.io.IOException
+import kotlin.collections.map
 
 class MovieRepository(
     private val api: MovieDBAPI,
-    private val dao: MovieDao
+    private val dao: MovieDao,
 ) {
-
-    /**
-     * Attempts to fetch movies from the network.
-     * Falls back to local Room cache if offline or failed.
-     */
-    fun getMoviesByCategory(category: MovieCategory): Flow<List<Movie>> = flow {
-        if (category == MovieCategory.FAVORITES) {
-            preloadFavoritesIfNeeded()
-            val favorites = dao.getMoviesByCategory(category).map { it.toDomainModel() }
-            emit(favorites)
-        } else {
-            try {
-                val apiResponse = when (category) {
-                    MovieCategory.TOP_RATED -> api.retrofitService.getTopRatedMovies(Constants.API_KEY).results
-                    MovieCategory.POPULAR -> api.retrofitService.getPopularMovies(Constants.API_KEY).results
-                    else -> emptyList()
-                }
-
-                dao.deleteMoviesNotInCategory(category.name)
-                dao.insertMovies(apiResponse.map { it.toCachedEntity(category) })
-
-                emit(apiResponse)
-
-            } catch (e: IOException) {
-                val cached = dao.getMoviesByCategory(category).map { it.toDomainModel() }
-                emit(cached)
-            }
-        }
-    }
-
-
-    val preloadedFavorites = listOf(
+    private val preloadedFavorites = listOf(
         Movie(
             id = 822119,
             title = "Captain America: Brave New World",
@@ -90,16 +70,41 @@ class MovieRepository(
         )
     )
 
-
-
     suspend fun preloadFavoritesIfNeeded() {
-        val existing = dao.getMoviesByCategory(MovieCategory.FAVORITES)
+        val existing = dao.getMoviesByCategory(MovieCategory.FAVORITES).first()
         if (existing.isEmpty()) {
             dao.insertMovies(preloadedFavorites.map { it.toCachedEntity(MovieCategory.FAVORITES) })
         }
     }
 
 
+    fun observeCachedMovies(category: MovieCategory): Flow<List<Movie>> {
+        return dao.getMoviesByCategory(category).map { list ->
+            list.map { it.toDomainModel() }
+        }
+    }
 
+    suspend fun syncMoviesByCategory(category: MovieCategory) {
+        if (category == MovieCategory.FAVORITES) {
+            preloadFavoritesIfNeeded()
+            return
+        }
+
+        try {
+            val apiResponse = when (category) {
+                MovieCategory.TOP_RATED -> api.retrofitService.getTopRatedMovies(Constants.API_KEY).results
+                MovieCategory.POPULAR -> api.retrofitService.getPopularMovies(Constants.API_KEY).results
+                else -> emptyList()
+            }
+
+            dao.deleteMoviesNotInCategory(category.name)
+            dao.insertMovies(apiResponse.map { it.toCachedEntity(category) })
+
+        } catch (e: IOException) {
+            e.printStackTrace() // fallback handled by Room cache
+        }
+
+
+    }
 
 }

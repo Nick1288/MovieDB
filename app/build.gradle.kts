@@ -76,6 +76,8 @@ dependencies {
     // Serialization JSON
     implementation(libs.kotlinx.serialization.json)
 
+    implementation(libs.androidx.work.runtime.ktx)
+
     //Room
     val room_version = "2.7.0"
 
